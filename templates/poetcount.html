@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <title>可视化统计</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="../static/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../static/css/typography.css">
+    <link rel="stylesheet" href="../static/css/stylesearch.css">
+    <link rel="stylesheet" href="../static/css/responsive.css">
+    <script src="https://www.jq22.com/jquery/jquery-1.10.2.js"></script>
+    <script src="../static/js/popper.min.js"></script>
+    <script src="../static/js/bootstrap.min.js"></script>
+    <script src="../static/js/jquery.appear.js"></script>
+   <script src="../static/js/countdown.min.js"></script>
+    <script src="../static/js/waypoints.min.js"></script>
+    <script src="../static/js/wow.min.js"></script>
+    <script src="../static/js/jquery.counterup.min.js"></script>
+      <!-- Slick JavaScript -->
+    <script src="../static/js/slick.min.js"></script>
+      <!-- Select2 JavaScript -->
+      <script src="../static/js/select2.min.js"></script>
+      <!-- Magnific Popup JavaScript -->
+      <script src="../static/js/jquery.magnific-popup.min.js"></script>
+      <!-- Smooth Scrollbar JavaScript -->
+      <script src="../static/js/smooth-scrollbar.js"></script>
+      <!-- Chart Custom JavaScript -->
+      <script src="../static/js/chart-custom.js"></script>
+      <!-- Custom JavaScript -->
+      <script src="../static/js/custom.js"></script>
+        <script src="../static/js/echarts.js"></script>
+    <script>
+            $(window).load(function() {
+                $("#loading").fadeOut(1000);
+            })
+    </script>
+    <script>
+
+        $(document).ready(function(){
+                var mychart = echarts.init(document.getElementById("tang-chart"));
+                //var songchart = echarts.init(document.getElementById('song-chart'));
+                var agechart = echarts.init(document.getElementById('age-chart'));
+                var sexchart = echarts.init(document.getElementById('sex-chart'))
+                function showLoad(){
+                    $('#loading').show();
+                }
+                          //隐藏动画效果
+                function hiddenLoad(){
+                    $('#loading').hide();
+                }
+                $.ajax({
+                    async:false,
+                    type:"GET",
+                    url:"/poetcountroute",
+                    contentType: "application/json;charset=utf-8",
+                    beforeSend: function (){
+                      //ajax刷新前加载load动画
+                      showLoad();
+                  },
+                    success:function(data){
+                        $("#loading").fadeOut(1000);
+                        alert("调取成功")
+                        mydata=data
+                        var option1 = {
+                            xAxis: {
+                                data: ['唐诗', '宋词']
+                            },
+                            yAxis: {},
+                            dataGroupId: '',
+                            animationDurationUpdate: 500,
+                            tooltip: {
+                                trigger: 'item'
+                            },
+                            toolbox: {
+                                show: true,
+                                feature: {
+                                    dataView: {
+                                        readOnly: false
+                                    },
+                                    restore: {},
+                                    saveAsImage: {}
+                                }
+                            },
+                            series: {
+                                type: 'bar',
+                                id: 'sales',
+                                itemStyle: {
+                                    normal: {
+                                        color: '#6FB1B4'
+                                    }
+                                },
+                                    data: [
+                                        {
+                                            value: mydata.tangsum,
+                                            groupId: 'Tang'
+                                        },
+                                        {
+                                            value: mydata.songsum,
+                                            groupId: 'Song'
+                                        },
+                                    ],
+                                    universalTransition: {
+                                        enabled: true,
+                                        divideShape: 'clone'
+                                    }
+                                }
+                            };
+                            const drilldownData = [
+                                {
+                                    dataGroupId: 'Tang',
+                                    data: mydata.tang
+                                },
+                                {
+                                    dataGroupId: 'Song',
+                                    data: mydata.song
+                                },
+                            ];
+                            mychart.on('click', function (event) {
+                                if (event.data) {
+                                    var subData = drilldownData.find(function (data) {
+                                        return data.dataGroupId === event.data.groupId;
+                                    });
+                                    if (!subData) {
+                                        return;
+                                    }
+                                    mychart.setOption({
+                                        xAxis: {
+                                            data: subData.data.map(function (item) {
+                                                return item[0];
+                                            })
+                                        },
+                                        series: {
+                                            type: 'bar',
+                                            id: 'sales',
+                                            dataGroupId: subData.dataGroupId,
+                                            data: subData.data.map(function (item) {
+                                                return item[1];
+                                            }),
+                                            universalTransition: {
+                                                enabled: true,
+                                                divideShape: 'clone'
+                                            }
+                                        },
+                                        graphic: [
+                                            {
+                                                type: 'text',
+                                                left: 50,
+                                                top: 20,
+                                                style: {
+                                                    text: '返回',
+                                                    fontfamily: 'yanye',
+                                                    fontSize: 18
+                                                },
+                                                onclick: function () {
+                                                    mychart.setOption(option1);
+                                                }
+                                            }
+                                        ]
+                                    });
+                                }
+                            });
+                            option1 && mychart.setOption(option1);
+                        var option2 = {
+                            tooltip: {
+                                trigger: 'item'
+                            },
+                            toolbox: {
+                                show: true,
+                                feature: {
+                                    dataView: {
+                                        readOnly: false
+                                    },
+
+                                    restore: {},
+                                    saveAsImage: {}
+                                }
+                            },
+                            legend: {
+                                orient: 'vertical',
+                                left: 'left'
+                            },
+                            series: [
+                                {
+                                    name: 'Access From',
+                                    type: 'pie',
+                                    radius: '50%',
+                                    color: ['#6FB1B4', '#f1939c'],
+                                    data: mydata.sex,
+                                    emphasis: {
+                                        itemStyle: {
+                                            shadowBlur: 10,
+                                            shadowOffsetX: 0,
+                                            shadowColor: 'rgba(0, 0, 0, 0.5)'
+                                        }
+                                    }
+                                }
+                            ]
+                        };
+                        option2 && sexchart.setOption(option2);
+                        var option3 = {
+                            dataset:{
+                              source:mydata.age
+                            },
+                          tooltip: {
+                            trigger: 'axis',
+                            axisPointer: {
+                              type: 'shadow',
+                              label: {
+                                show: true
+                              }
+                            }
+                          },
+
+                            visualMap: {
+                                orient: 'horizontal',
+                                left: 'center',
+                                top: "2%",
+                                min: 0,
+                                max: 120,
+                                text: ['高值', '低值'],
+                                // Map the score column to color
+                                dimension: 1,
+                                inRange: {
+                                    color: ['#BDE5CE', '#F2D58F', '#f07c82']
+                                }
+                            },
+                          toolbox: {
+                            show: true,
+                            feature: {
+                              mark: { show: true },
+                              dataView: { show: true, readOnly: false },
+                              magicType: { show: true, type: ['line', 'bar'] },
+                              restore: { show: true },
+                              saveAsImage: { show: true }
+                            }
+                          },
+                          calculable: true,
+                          grid: {
+                            top: '12%',
+                            left: '1%',
+                            right: '10%',
+                            containLabel: true
+                          },
+                          yAxis: [
+                            {
+                              type: 'category',
+                              //data: mydata.age[0]
+                            }
+                          ],
+                          xAxis: [
+                            {
+                              type: 'value',
+                              name: '年龄',
+                            }
+                          ],
+                          dataZoom: [
+                            {
+                              show: true,
+                              start: 10,
+                              end: 100,
+                                height: 15,
+                                fillerColor:'#BDE5CE',
+                                borderColor:'#BDE5CE',
+                            },
+                            {
+                              type: 'inside',//添加滚轮
+                              start: 10,
+                              end: 100
+                            },
+                            {
+                              show: true,
+                              yAxisIndex: 0,
+                              filterMode: 'empty',
+                              width: 15,
+                                fillerColor:'#BDE5CE',
+                                borderColor:'#BDE5CE',
+                              height: '80%',
+                              showDataShadow: false,
+                              left: '97%'
+                            }
+                          ],
+                          series: [
+                            {
+                              name: '年龄',
+                              type: 'bar',
+                                encode: {
+                                        // Map the "amount" column to X axis.
+                                        x: 'Age',
+                                        // Map the "product" column to Y axis
+                                        y: 'Name'
+                                    }
+                              //data: mydata.age[1]
+                            }
+                          ]
+                        };
+                        option3 && agechart.setOption(option3);
+                    },
+                    error:function(){
+                        console.log();
+                        hiddenLoad();
+                        alert("出现错误");
+                    },
+                    complete:function () {
+                        //完成以后隐藏load动画
+                        hiddenLoad();
+                    }
+
+                })
+            })
+        </script>
+    <link rel="stylesheet" href={{ url_for('static',filename='css/asidenav1.css') }}>
+    <style>
+        @font-face{
+
+            font-family:'yanye';
+
+            src:url("../static/fonts/yanye.ttf");
+
+        }
+        body{background-color:#F9ECD1;
+            background-image:url('../static/img/poetcount/bg3.png'),url('../static/img/poetcount/bg1.png');
+            background-repeat:no-repeat,no-repeat;
+            background-position:left bottom,right top;
+            background-size: 100% 520px,170px,300px;
+        }
+        .card-title{
+            font-family:'yanye';
+            color:#274B58;
+            font-weight:100;
+            margin-left:220px;
+        }
+        .iq-card{
+            background-color: rgba(249, 236, 209, 0);
+        }
+    </style>
+</head>
+<body> <!-- loader Start -->
+      <div id="loading" style="background: #fff url(../static/img/loaderbut.gif) no-repeat scroll center center; height: 100%; width: 100%; background-size: 10%; position: fixed; margin-top: 0px; top: 0px; left: 0px; bottom: 0px; overflow: hidden !important; right: 0px; z-index: 999999;">
+         <!--<div id="loading-center">
+         </div>-->
+      </div>
+      <!-- loader END -->
+      <!-- Wrapper Start -->
+        <div class="wrapper">
+            <div class="container-fluid  p-4">
+                <div class="row">
+                    <div class="col-sm-12 col-lg-5 p-3 justify-content-between">
+                        <div class="iq-card">
+                            <div class="iq-card-header d-flex justify-content-between">
+                               <div class="iq-header-title">
+                                  <h4 class="card-title">唐宋 诗词人作诗数统计</h4>
+                               </div>
+                            </div>
+                            <div class="iq-card-body">
+                               <div id="tang-chart" style="width:100%; height:250px;"></div>
+                            </div>
+                          <!--  <div class="iq-card-body">
+                               <div id="song-chart" style="width:100%; height:265px;"></div>
+                            </div>-->
+                        </div>
+                        <div class="iq-card">
+                        <div class="iq-card-header d-flex justify-content-between">
+                           <div class="iq-header-title">
+                              <h4 class="card-title">性别分配图</h4>
+                           </div>
+                        </div>
+                        <div class="iq-card-body">
+                           <div id="sex-chart" style="width:100%; height:130px"></div>
+                        </div>
+                     </div>
+                  </div>
+                    <div class="col-sm-12 col-lg-6 p-3">
+                        <div class="iq-card">
+                            <div class="iq-card-header d-flex justify-content-between">
+                               <div class="iq-header-title">
+                                  <h4 class="card-title">年龄统计图</h4>
+                               </div>
+                            </div>
+                            <div class="iq-card-body">
+                               <div id="age-chart" style="width:100%; height:510px"></div>
+                            </div>
+                     </div>
+                  </div>
+                </div>
+
+            </div>
+
+    </div>
+      <!-- Wrapper END -->
+        <svg width="0" height="0">
+        <defs>
+            <filter id="goo">
+                <feGaussianBlur in="SourceGraphic" stdDeviation="10" result="blur"></feGaussianBlur>
+                <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 19 -9" result="goo"></feColorMatrix>
+                <feComposite in="SourceGraphic" in2="goo" operator="atop"></feComposite>
+            </filter>
+        </defs>
+    </svg>
+        <div class="aside-nav bounceInUp animated" id="aside-nav">
+        <label for="" class="aside-menu" title="按住拖动">菜单</label>
+
+        <a href="/" title="返回首页" class="menu-item menu-first">首页</a>
+        <a href="/searchpoet" title="上一页" class="menu-item menu-second">上一页</a>
+        <a href="/charanimal" title="下一页" class="menu-item menu-third">下一页</a>
+    </div>
+    <script src="../static/js/asidenav.js"></script>
+</body>
+</html>

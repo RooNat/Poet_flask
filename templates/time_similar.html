@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>时间和相似度</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="../static/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../static/css/typography.css">
+    <link rel="stylesheet" href={{ url_for('static',filename='css/stylesearch.css') }}>
+    <link rel="stylesheet" href="../static/css/responsive.css">
+    <link rel="stylesheet" href="../static/css/asidenav1.css">
+    <script src="https://www.jq22.com/jquery/jquery-1.10.2.js"></script>
+    <script src="../static/js/popper.min.js"></script>
+    <script src="../static/js/bootstrap.min.js"></script>
+    <script src="../static/js/jquery.appear.js"></script>
+    <script src="../static/js/countdown.min.js"></script>
+      <!-- Counterup JavaScript -->
+    <script src="../static/js/waypoints.min.js"></script>
+    <script src="../static/js/jquery.counterup.min.js"></script>
+    <script src="../static/js/wow.min.js"></script>
+      <!-- Slick JavaScript -->
+      <script src="../static/js/slick.min.js"></script>
+      <!-- Select2 JavaScript -->
+      <script src="../static/js/select2.min.js"></script>
+      <!-- Owl Carousel JavaScript -->
+      <script src="../static/js/owl.carousel.min.js"></script>
+      <!-- Magnific Popup JavaScript -->
+      <script src="../static/js/jquery.magnific-popup.min.js"></script>
+      <!-- Smooth Scrollbar JavaScript -->
+      <script src="../static/js/smooth-scrollbar.js"></script>
+      <!-- Chart Custom JavaScript -->
+      <script src="../static/js/chart-custom.js"></script>
+      <!-- Custom JavaScript -->
+      <script src="../static/js/custom.js"></script>
+        <script src="../static/js/echarts.js"></script>
+        <script>
+            $(window).load(function() {
+                $("#loading").fadeOut(500);
+            })
+        </script>
+        <script>
+            $(document).ready(function(){
+                var timechart1 = echarts.init(document.getElementById("time-chart1"));
+                var timechart2 = echarts.init(document.getElementById("time-chart2"));
+                 //加载动画效果
+                function showLoad(){
+                      $('#loading').show();
+                  }
+                  //隐藏动画效果
+                function hiddenLoad(){
+                      $('#loading').hide();
+                  }
+                $.ajax({
+                    async:true,
+                    type:"GET",
+                    url:"/wordfun",
+                    contentType: "application/json;charset=utf-8",
+                    beforeSend: function (){
+                      //ajax刷新前加载load动画
+                      showLoad();
+                  },
+                    success:function(data){
+                        $("#loading").fadeOut(1000);
+                        var timetang=new Array();
+                        for (var i=0;i<data['tangtime'].length;i++)
+                        {
+                            timetang[i]=data['tangtime'][i].name;
+                        }
+                        var timesong=new Array();
+                        for (var j=0;j<data['songtime'].length;j++)
+                        {
+                            timesong[j]=data['songtime'][j].name;
+                        }
+                        var option = {
+                          tooltip: {
+                            trigger: 'item',
+                            //formatter: '{a} <br/>{b} : {c}%'
+                          },
+                          legend: {
+                            data: timetang
+                          },
+                            color:[
+
+                                          '#f1939c','#BDE5CE','#F2D58F','#3A727F',
+                                            '#962832','#db5858','#ad6598','#74759b',
+                                            '#93b5cf','#f8df72','#6e8b74','#ebb10d','#f9d27d',
+                                            '#648e93','#bf3553'
+
+                                        ],
+                          series: [
+                            {
+                              name: '唐',
+                              type: 'funnel',
+                              left: '0%',
+                              top: 50,
+                              bottom: 0,
+                              width: '100%',
+                              min: 0,
+                              max: data.tangmax,
+                              minSize: '0%',
+                              maxSize: '100%',
+                              sort: 'descending',
+                              gap: 2,
+                                color:this.color,
+                              label: {
+                                show: true,
+                                position: 'inside'
+                              },
+                              labelLine: {
+                                length: 10,
+                                lineStyle: {
+                                  width: 1,
+                                  type: 'solid'
+                                }
+                              },
+                              itemStyle: {
+                                borderColor: '#F2D58F',
+                                borderWidth: 1
+                              },
+                              emphasis: {
+                                label: {
+                                  fontSize: 20
+                                }
+                              },
+                              data: data.tangtime
+                            }
+                          ]
+                        };
+                        timechart1.setOption(option);
+                        var option1 = {
+                          tooltip: {
+                            trigger: 'item',
+                            //formatter: '{a} <br/>{b} : {c}%'
+                          },
+                          legend: {
+                            data: timesong
+                          },
+                            color:[
+
+                                          '#f1939c','#BDE5CE','#F2D58F','#3A727F',
+                                            '#962832','#db5858','#ad6598','#74759b',
+                                            '#93b5cf','#f8df72','#6e8b74','#ebb10d','#f9d27d',
+                                            '#648e93','#bf3553'
+
+                            ],
+                          series: [
+                            {
+                              name: '宋',
+                              type: 'funnel',
+                              left: '0%',
+                              top: 50,
+                              bottom: 0,
+                              width: '100%',
+                              min: 0,
+                              max: data.songmax,
+                              minSize: '0%',
+                              maxSize: '100%',
+                              sort: 'ascending',
+                                color:this.color,
+                              gap: 2,
+                              label: {
+                                show: true,
+                                position: 'inside'
+                              },
+                              labelLine: {
+                                length: 10,
+                                lineStyle: {
+                                  width: 1,
+                                  type: 'solid'
+                                }
+                              },
+                              itemStyle: {
+                                borderColor: '#F2D58F',
+                                borderWidth: 1
+                              },
+                              emphasis: {
+                                label: {
+                                  fontSize: 20
+                                }
+                              },
+                              data: data.songtime
+                            }
+                          ]
+                        };
+                        timechart2.setOption(option1);
+                    },
+                    error:function(){
+                        console.log();
+                        hiddenLoad();
+                        alert("出现错误");
+                    },
+                    complete:function () {
+                        //完成以后隐藏load动画
+                        hiddenLoad();
+                    }
+                })
+
+            })
+        </script>
+        <script>
+              //加载动画效果
+                function showLoad(){
+                      $('#loading').show();
+                  }
+                  //隐藏动画效果
+                function hiddenLoad(){
+                      $('#loading').hide();
+                  }
+                function searchword(){
+                    var words=document.getElementById("word_search").value
+                    var radio=document.getElementsByName("bsradio")
+                    var radiovalue;
+                    for (i=0; i<radio.length; i++) {
+                        if (radio[i].checked) {
+                            radiovalue=radio[i].value
+                        }
+                    }
+                    var tsimilar = echarts.init(document.getElementById("tsimilar"));
+                    var tsimilarjie=echarts.init(document.getElementById("tsimilarjie"));
+                    $.ajax({
+                        async:true,
+                        type:"GET",
+                        url:"/wordsimilarfun",
+                        contentType: "application/json;charset=utf-8",
+                        data:{"words":words,"radiovalue":radiovalue},
+                        beforeSend: function (){
+                        //ajax刷新前加载load动画
+                        showLoad();
+                    },
+                        success:function(data){
+                            $("#loading").fadeOut(1000);
+                            var option1 = {
+                                  title: {
+                                    text: 'thulac分词器',
+                                    left:'center',
+                                       color:'#274B58'
+                                  },
+                                  tooltip: {
+                                    trigger: 'axis'
+                                  },
+                                    color:['#93b5cf','#BDE5CE'],
+                                  legend: {
+                                    left: 'left',
+                                    data: [
+                                      '唐诗',
+                                      '宋词',
+                                    ]
+                                  },
+                                  radar: [
+                                    {
+                                      indicator:data.twordname_thu,
+                                      center: ['50%', '40%'],
+                                      radius: 80
+                                    },
+                                    {
+                                      indicator: data.swordname_thu,
+                                      radius: 80,
+                                      center: ['50%', '80%']
+                                    },
+                                  ],
+                                  splitNumber:100,
+                                textStyle:{
+                                  color:'#274B58'
+                                },
+                                  series: [
+                                    {
+                                      type: 'radar',
+                                      tooltip: {
+                                        trigger: 'item'
+                                      },
+                                      areaStyle: {},
+                                      data: [
+                                        {
+                                          value: data.twordvalue_thu,
+                                          name: '唐诗'
+                                        }
+                                      ]
+                                    },
+                                    {
+                                        type: 'radar',
+                                        radarIndex: 1,
+                                        areaStyle: {},
+                                        tooltip: {
+                                        trigger: 'item'
+                                      },
+                                      data: [
+                                        {
+                                          value: data.swordvalue_thu,
+                                          name: '宋词'
+                                        }
+                                      ]
+                                    },
+                                  ]
+                                };
+                            tsimilar.setOption(option1)
+
+                            var option2 = {
+                                  title: {
+                                    text: 'jieba分词器',
+                                    left:'center',
+                                      color:'#274B58'
+                                  },
+                                  tooltip: {
+                                    trigger: 'axis'
+                                  },
+                                textStyle:{
+                                  color:'#274B58'
+                                },
+                                color:['#93b5cf','#BDE5CE'],
+                                  legend: {
+                                    left: 'left',
+                                    data: [
+                                      '唐诗',
+                                      '宋词',
+                                    ]
+                                  },
+                                  radar: [
+                                    {
+                                        indicator:data.twordname_jie,
+                                        center: ['50%', '40%'],
+                                        radius: 80
+                                    },
+                                    {
+                                        indicator: data.swordname_jie,
+                                        radius: 80,
+                                        center: ['50%', '80%']
+                                    },
+                                  ],
+                                  series: [
+                                    {
+                                      type: 'radar',
+                                      tooltip: {
+                                        trigger: 'item'
+                                      },
+                                      areaStyle: {},
+                                      data: [
+                                        {
+                                          value: data.twordvalue_jie,
+                                          name: '唐诗'
+                                        }
+                                      ]
+                                    },
+                                    {
+                                        type: 'radar',
+                                        radarIndex: 1,
+                                        areaStyle: {},
+                                        tooltip: {
+                                            trigger: 'item'
+                                      },
+                                        data: [
+                                            {
+                                            value: data.swordvalue_jie,
+                                            name: '宋词'
+                                            }
+                                        ]
+                                    },
+                                  ]
+                                };
+                            tsimilarjie.setOption(option2)
+                        },
+                        error:function(){
+                            console.log();
+                            hiddenLoad();
+                            alert("无此词,请重新输入");
+                        },
+                        complete:function () {
+                        //完成以后隐藏load动画
+                        hiddenLoad();
+                    }
+                    })
+                }
+    </script>
+     <style>
+        @font-face{
+
+            font-family:'yanye';
+
+            src:url("../static/fonts/yanye.ttf");
+
+        }
+        body{background-color:#F9ECD1;
+            background-image:url('../static/img/timesimilar/bg1.png'),url('../static/img/timesimilar/bg2.png'),url('../static/img/timesimilar/bgplant.png');
+            background-repeat:no-repeat,no-repeat,no-repeat;
+            background-position:left bottom,right top,left top;
+            background-size: 100% 800px,170px 300px,200px 300px;
+        }
+        .card-title{
+            font-family:'yanye';
+            color:#274B58;
+            font-weight:100;
+            margin-left:20px;
+        }
+        #similarcard{
+            margin-left:440px
+        }
+        .iq-card{
+            background-color: rgba(249, 236, 209, 0);
+            {#background-color:#fff;#}
+        }
+        .iq-search-bar{
+            width:420px;
+            height:50px;
+            background-color:rgba(249, 236, 209, 0);
+            background:#F9ECD1 url('../static/img/timesimilar/searchbar0.png') no-repeat 0px 0px;
+            background-size: 420px 50px;
+        }
+        .searchbox{
+            margin:5px 30px;
+            border-radius:40px;
+            background-color:rgba(249, 236, 209, 0);
+        }
+        .search-input{
+            width:200px;
+            border-radius:30px;
+            background-color:rgba(249, 236, 209, 0)
+        }
+        .search-link{
+            margin-right:20px;
+            margin-top:5px
+        }
+    </style>
+</head>
+<body>
+
+    <div id="loading" style="background: #fff url(../static/img/loaderbut.gif) no-repeat scroll center center; height: 100%; width: 100%; background-size: 10%; position: fixed; margin-top: 0px; top: 0px; left: 0px; bottom: 0px; overflow: hidden !important; right: 0px; z-index: 999999;">
+         <!--<div id="loading-center">
+         </div>-->
+      </div>
+
+      <!-- loader END -->
+      <!-- Wrapper Start -->
+    <div class="wrapper">
+        <div class="container-fluid  p-5">
+            <div class="row">
+                <div class="col-sm-12 col-lg-8 p-2">
+                        <div class="iq-card">
+                            <div class="iq-card-header d-flex justify-content-between">
+                                <div class="iq-header-title">
+                                        <h4 class="card-title" id="similarcard">词相似度</h4>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="iq-search-bar p-1">
+                                  <form action="#" class="searchbox" style="border-color:rgb(213,195,112,0)">
+                                     <input type="text" class="text search-input" id="word_search" placeholder="请输入一个词...">
+                                     <a class="search-link" onclick="searchword()"><i class="ri-search-line"></i></a>
+                                  </form>
+                                </div>
+                                <div class="p-1 col-lg-7">
+                                    <div id="radioinput" style="margin-left:15px;margin-top:15px;">
+                                        <div class="radio d-inline-block mr-2" style="color:#3A727F">
+                                          <input type="radio" name="bsradio" id="radio1" value=1 checked=true style="background-color:#3A727F">
+                                          <label for="radio1">Skip-Gram模型</label>
+                                       </div>
+                                        <div class="radio d-inline-block mr-2" style="color:#3A727F">
+                                          <input type="radio" name="bsradio" value=0 id="radio2">
+                                          <label for="radio2">CBOW模型</label>
+                                       </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="iq-card-body col-lg-6">
+                                    <div id="tsimilar" style="width:100%; height:440px"></div>
+                                </div>
+                                <div class="iq-card-body col-lg-6">
+                                    <div id="tsimilarjie" style="width:100%; height:440px"></div>
+                                </div>
+                            </div>
+                        </div>
+                </div>
+                <div class="col-sm-12 col-lg-4 p-2 justify-content-between">
+                    <div class="iq-card">
+                            <div class="iq-card-header d-flex justify-content-between">
+                               <div class="iq-header-title">
+                                  <h4 class="card-title" id="timecard">唐宋时间词</h4>
+                               </div>
+                            </div>
+                            <div class="iq-card-body">
+                               <div id="time-chart1" style="width:100%; height:225px;"></div>
+                            </div>
+                            <div class="iq-card-body">
+                               <div id="time-chart2" style="width:100%; height:225px;"></div>
+                            </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+      <!-- Wrapper END -->
+    <svg width="0" height="0">
+        <defs>
+            <filter id="goo">
+                <feGaussianBlur in="SourceGraphic" stdDeviation="10" result="blur"></feGaussianBlur>
+                <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 19 -9" result="goo"></feColorMatrix>
+                <feComposite in="SourceGraphic" in2="goo" operator="atop"></feComposite>
+            </filter>
+        </defs>
+    </svg>
+    <div class="aside-nav bounceInUp animated" id="aside-nav">
+        <label for="" class="aside-menu" title="按住拖动">菜单</label>
+
+        <a href="/" title="返回首页" class="menu-item menu-first">首页</a>
+        <a href="/locword" title="上一页" class="menu-item menu-second">上一页</a>
+        <a href="/wordssentiment" title="下一页" class="menu-item menu-third">下一页</a>
+        <!--<a href="javascript:void(0)" title="词分析" class="menu-item menu-line menu-fourth">词分析</a> -->
+    </div>
+    <script src="../static/js/asidenav.js"></script>
+</body>
+</html>

@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script>
+        document.onreadystatechange = completeLoading;
+        function completeLoading() {
+            if (document.readyState == "complete") {
+                var loadingMask = document.getElementById('loading');
+                loadingMask.parentNode.removeChild(loadingMask);
+            }
+        }
+    </script>
+  <title>诗人搜索页面</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="../static/css/responsive.css">
+    <script src="https://www.jq22.com/jquery/jquery-1.10.2.js"></script>
+    <script src="../static/js/popper.min.js"></script>
+    <script src="../static/js/bootstrap.min.js"></script>
+    <script src="../static/js/jquery.appear.js"></script>
+    <script src="../static/js/jquery.counterup.min.js"></script>
+    <!--<script src="../static/js/countdown.min.js"></script>-->
+      <!-- Counterup JavaScript -->
+    <!--<script src="../static/js/waypoints.min.js"></script>-->
+    <!--<script src="../static/js/wow.min.js"></script>-->
+      <!-- Slick JavaScript -->
+    <script src="../static/js/slick.min.js"></script>
+      <!-- Select2 JavaScript -->
+      <script src="../static/js/select2.min.js"></script>
+      <!-- Magnific Popup JavaScript -->
+     <script src="../static/js/jquery.magnific-popup.min.js"></script>
+      <!-- Smooth Scrollbar JavaScript -->
+      <script src="../static/js/smooth-scrollbar.js"></script>
+      <!-- Chart Custom JavaScript -->
+      <script src="../static/js/chart-custom.js"></script>
+      <!-- Custom JavaScript -->
+      <script src="../static/js/custom.js"></script>
+        <script src="../static/js/echarts.js"></script>
+        <script src="../static/js/echarts-wordcloud.js"></script>
+        <script src="../static/js/china.js"></script>
+        <script>
+            $(window).load(function() {
+                $("#loading").fadeOut(500);
+            })
+    </script>
+        <script>
+            //加载动画效果
+            function showLoad(){
+                      $('#loading').show();
+                  }
+                  //隐藏动画效果
+            function hiddenLoad(){
+                      $('#loading').hide();
+                  }
+            function searchpoet(){
+                var name=document.getElementById("poet_name").value
+                var Mychart = echarts.init(document.getElementById("cloud"));
+                var mapcharts=echarts.init(document.getElementById('location'))
+
+                $.ajax({
+                    async:true,
+                    type:"GET",
+                    url:"/searchdata",
+                    contentType: "application/json;charset=utf-8",
+                    data:{"name":name},
+                    beforeSend: function (){
+                      //ajax刷新前加载load动画
+                      showLoad();
+                  },
+                    success:function(data){
+                        $("#loading").fadeOut(1000);
+                        $("#pname").html(data.name)
+                        $("#pfemale").html(data.female)
+                        $("#p_age").html(data.deathage)
+                        $("#pchao").html(data.chao)
+                        $("#phome").html(data.home)
+                        $("#pdocu").html(data.intro)
+                        var option = {
+                            backgroundColor:'',
+                            tooltip:{},
+                                toolbox: {
+                                show: true,
+                                feature: {
+                                  dataView: {
+                                    readOnly: false
+                                  },
+                                  restore: {},
+                                  saveAsImage: {}
+                                }
+                              },
+                                roam:true,
+                                scaleLimit:{
+                                  max:3,
+                                  min:0.7
+                                },
+                            series:[{
+                                type:'wordCloud',
+
+                                //网格尺寸,尺寸越大，字体之间的间隔越大
+                                grideSize:3,
+
+                                //字体的最大与最小字号
+                                sizeRange:[14,60],
+
+                                //字体旋转的范围
+                                rotationRange:[45,90,135,-90],
+
+                                //词云形状 circle:圆形,pentagon:五边形
+                                //cardioid:苹果形或心形,star:星形,diamond:钻石,
+                                //triangle-forward:三角形,triangle:三角形,smooth:平滑
+                                shape:'pentagon',
+                                textStyle:{
+                                        //字体随机颜色
+                                    color:function () {
+                                        var colors = ['#fda67e', '#81cacc', '#cca8ba', "#88cc81", "#82a0c5", '#fddb7e', '#735ba1', '#bda29a', '#6e7074', '#546570', '#c4ccd3'];
+                                        return colors[parseInt(Math.random() * 10)];
+                                    },
+                                    emphasis:{
+                                        //阴影距离
+                                        shadowBlur:14,
+
+                                        //阴影颜色
+                                        shadowColor:'#111'
+                                    }
+                                },
+                                data:data.wordcounter
+                            }]
+                        };
+                        var option_map={
+                            geo:{  //地图的样式
+                                map:'china',
+                                itemStyle:{ //设置样式
+                                    normal:{
+                                        areaColor:'#3A727F',
+                                        borderColor:'#BDE5CE'
+                                    },
+                                    emphasis:{
+                                        areaColor:'#F2D58F',
+                                        color: "#BDE5CE"
+                                    }
+                                },
+                            },
+                            toolbox: {
+                                show: true,
+                                feature: {
+                                  dataView: {
+                                    readOnly: false
+                                  },
+                                  restore: {},
+                                  saveAsImage: {}
+                                }
+                              },
+                            tooltip:{
+                                trigger: 'item',
+                                formatter: function (data) {
+                                    return data.name+' '+'紧密度:'+data.value[2]
+                                },
+                            },
+                            roam:true,
+                            scaleLimit:{
+                              max:3,
+                              min:0.7
+                            },
+                            backgroundColor:'', //图表的背景色
+                            // visualMap:{
+                            //     type:'continuous',
+                            // },
+                            series:[  //添加散点
+                                {
+                                    name: '与地点联系紧密度', // 自定义名称
+                                    type: 'effectScatter', // scatter  effectScatter
+                                    coordinateSystem: 'geo', // 设置坐标系类型
+                                    data: data.location, // 设置散点位置和数据
+                                    symbolSize: function (val) { // 设置散点大小
+                                        return val[2]*5
+                                    },
+                                    showEffectOn: 'render',
+                                    rippleEffect: {
+                                        brushType: 'stroke'
+                                    },
+                                    hoverAnimation: true, // 是否显示鼠标悬浮动画
+                                    /*label: {
+                                        // 静态显示时的样式
+                                        normal: {
+                                            show: true, // 显示地区名称
+                                            formatter: '{b}',
+                                            color:'#274B58',
+                                            position: 'right', // 显示位置
+
+                                        },
+                                        // 鼠标悬浮上去的样式
+                                        emphasis: {
+                                            show: true, // 显示地区名称
+                                            color: "#BDE5CE",
+                                        },
+                                    },*/
+                                    itemStyle: {
+                                        normal: {
+                                            color:'#F2D58F',
+                                            shadowBlur: 10,
+                                        },
+                                        // 鼠标悬浮上去的样式
+                                        emphasis: {
+                                            color: "#BDE5CE",
+                                        },
+                                    },
+                                    zlevel: 3
+                                }
+                            ]
+
+                        }
+                        Mychart.setOption(option);
+                        mapcharts.setOption(option_map)
+                    },
+                    error:function(){
+                        console.log();
+                        hiddenLoad();
+                        alert("出现错误");
+                    },
+                    complete:function () {
+                        //完成以后隐藏load动画
+                        hiddenLoad();
+                    }
+                })
+            }
+
+
+    </script>
+    <link rel="stylesheet" href="../static/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../static/css/typography.css">
+    <link rel="stylesheet" href="../static/css/stylesearch.css">
+    <link rel="stylesheet" href="{{ url_for('static',filename='css/stylesearch.css') }}">
+    <!--<link rel="stylesheet" href="{{ url_for('static',filename='css/typography.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static',filename='css/stylesearch.css') }}">-->
+    <style>
+        @font-face{
+
+            font-family:'yanye';
+
+            src:url("../static/fonts/yanye.ttf");
+
+        }
+        h4{font-family: 'yanye';color:#274B58}
+        #logotitle{font-family:'yanye';color:#274B58}
+        @font-face{
+
+            font-family:'fengsong';
+
+            src:url("../static/fonts/fengsong.ttf");
+
+        }
+        .little,input{font-family:'fengsong'}
+        .little{font-size:18px;color:#3A727F}
+        .iq-card{
+            background-color: rgba(249, 236, 209, 0);
+            {#background-color:#fff;#}
+        }
+        .content-page{background-image:url('../static/img/search/motif.png'),url('../static/img/search/sidebarbg7.png');
+          background-repeat:no-repeat,no-repeat;
+          background-position:20px 0px,left bottom;
+            background-size: 120px 120px,100% 100%}
+    {#    .iq-top-navbar{ background:#F9ECD1 url('../static/img/search/searbar.png') no-repeat 0px 0px;#}
+    {#-webkit-background-size: cover;#}
+    {#-moz-background-size: cover;#}
+    {#-o-background-size: cover;background-size: cover;}#}
+    </style>
+</head>
+<body>
+    <!-- loader Start -->
+      <div id="loading" style="background: #fff url(../static/img/loaderbut.gif) no-repeat scroll center center; height: 100%; width: 100%; background-size: 10%; position: fixed; margin-top: 0px; top: 0px; left: 0px; bottom: 0px; overflow: hidden !important; right: 0px; z-index: 999999;">
+         <!--<div id="loading-center">
+         </div>-->
+      </div>
+      <!-- loader END -->
+      <!-- Wrapper Start -->
+    <div class="wrapper" style="background-color: #F9ECD1;">
+        <div class="iq-sidebar" style="background-color:#F9ECD1;
+        background-image:url('../static/img/search/sidebarbg.png');
+          background-repeat: no-repeat;
+          background-position: 0px 0px;
+            background-size: 100% 100%, 100%,100%;">
+             <div class="iq-sidebar-logo d-flex justify-content-between">
+               <a href="/">
+               <img src="{{ url_for('static',filename='img/search/logo1.gif') }}" class="img-fluid" alt="">
+               <span><div id="logotitle">首页</div></span>
+               </a>
+                 <div class="iq-menu-bt-sidebar">
+                     <div class="iq-menu-bt align-self-center">
+                        <div class="wrapper-menu">
+                        <div class="main-circle"><i class="ri-arrow-left-s-line"></i></div>
+                        <div class="hover-circle"><i class="ri-arrow-right-s-line"></i></div>
+                     </div>
+                     </div>
+                  </div>
+            </div>
+            <div id="sidebar-scrollbar" style="background:#F9ECD1; ">
+                <div class="iq-card" style="background:#F9ECD1;background-image:url('../static/img/search/sidebarbg6.png');
+          background-repeat:no-repeat;
+          background-position:0px 0px;
+            background-size: 100%,100%;">
+                    <div class="iq-card-header d-flex justify-content-between">
+                        <div class="iq-header-title">
+                            <h4 class="card-title">基本信息</h4>
+                        </div>
+                    </div>
+                    <div class="iq-card-body" style="border-right-style:solid; boder-width:0px,5px,0px,0px;border-color:#3A727F ">
+                        <div class="about-info m-0 p-0">
+                            <div class="row">
+                                <div class="little col-12"><p>这部分是关于诗人的基本信息</p></div>
+                                <div class="little col-4">姓名:</div>
+                                <div class="little col-8" id="pname">无</div>
+                                <div class="little col-4">性别:</div>
+                                <div class="little col-8" id="pfemale">无</div>
+                                <div class="little col-4">享年:</div>
+                                <div class="little col-8" id="p_age">无</div>
+                                <div class="little col-4">朝代:</div>
+                                <div class="little col-8" id="pchao">无</div>
+                                <div class="little col-4">籍贯:</div>
+                                <div class="little col-8" id="phome">无</div>
+                            </div>
+                        </div>
+                    </div>
+                    <hr class="mt-4 mb-4">
+                    <div class="iq-card-header d-flex justify-content-between">
+                        <div class="iq-header-title">
+                            <h4 class="card-title">古文记载</h4>
+                        </div>
+                    </div>
+                    <div class="iq-card-body" style="border-right-style:solid; boder-width:0px,5px,0px,0px;border-color:#3A727F">
+                        <div class="about-info m-0 p-0">
+                            <div class="row">
+                                <div class="little col-12" id="pdocu"><p>空</p></div>
+                            </div>
+                        </div>
+                    </div>
+            </div>
+
+        </div>
+        </div>
+        <div class="iq-top-navbar" style="width:450px; border-radius:30px" >
+            <div class="iq-navbar-custom">
+               <div class="iq-sidebar-logo">
+                  <div class="top-logo">
+                  </div>
+               </div>
+               <nav class="p-3">
+                  <div class="iq-search-bar">
+                     <form action="#" class="searchbox">
+                        <input type="text" class="text search-input" style="padding:5px 0px 5px 10px"  id="poet_name" placeholder="请输入唐宋期间诗人完整姓名">
+                        <a class="search-link" style="right:5px" onclick="searchpoet()"><i class="ri-search-line"></i></a>
+                     </form>
+                  </div>
+               </nav>
+                <div class="iq-menu-bt align-self-center">
+                     <div class="wrapper-menu">
+                        <div class="main-circle"><i class="ri-arrow-left-s-line"></i></div>
+                        <div class="hover-circle"><i class="ri-arrow-right-s-line"></i></div>
+                     </div>
+                </div>
+            </div>
+         </div>
+        <div id="content-page" class="content-page">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-sm-12 col-lg-6">
+                     <div class="iq-card" id="card1">
+                        <div class="iq-card-header d-flex justify-content-between">
+                           <div class="iq-header-title">
+                              <h4 class="card-title" style="margin-top:30px;margin-left:50px;padding:10px 10px">人物与地点关系图</h4>
+                           </div>
+                        </div>
+                        <div class="iq-card-body">
+                           <div id="location" style="width: 100%;height:450px;"></div>
+                        </div>
+                     </div>
+                  </div>
+                    <div class="col-sm-12 col-lg-6">
+                     <div class="iq-card" id="card2">
+                        <div class="iq-card-header d-flex justify-content-between">
+                           <div class="iq-header-title">
+                              <h4 class="card-title" style="margin-top:30px;margin-left:50px;padding:10px 10px">人物词云图</h4>
+                           </div>
+                        </div>
+                        <div class="iq-card-body">
+                           <div id="cloud" style="width: 100%;height:450px;"></div>
+                        </div>
+                     </div>
+
+                  </div>
+                </div>
+            </div>
+        </div>
+    </div>
+      <!-- Wrapper END -->
+</body>
+</html>

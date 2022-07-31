@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>地名和场景</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="../static/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../static/css/typography.css">
+    <link rel="stylesheet" href="../static/css/stylesearch.css">
+    <link rel="stylesheet" href="../static/css/responsive.css">
+    <link rel="stylesheet" href="../static/css/asidenav1.css">
+    <script src="https://www.jq22.com/jquery/jquery-1.10.2.js"></script>
+    <script src="../static/js/popper.min.js"></script>
+    <script src="../static/js/bootstrap.min.js"></script>
+    <script src="../static/js/jquery.appear.js"></script>
+    <script src="../static/js/countdown.min.js"></script>
+      <!-- Counterup JavaScript -->
+    <script src="../static/js/waypoints.min.js"></script>
+    <script src="../static/js/jquery.counterup.min.js"></script>
+    <script src="../static/js/wow.min.js"></script>
+      <!-- Slick JavaScript -->
+      <script src="../static/js/slick.min.js"></script>
+      <!-- Select2 JavaScript -->
+      <script src="../static/js/select2.min.js"></script>
+      <!-- Owl Carousel JavaScript -->
+      <script src="../static/js/owl.carousel.min.js"></script>
+      <!-- Magnific Popup JavaScript -->
+      <script src="../static/js/jquery.magnific-popup.min.js"></script>
+      <!-- Smooth Scrollbar JavaScript -->
+      <script src="../static/js/smooth-scrollbar.js"></script>
+      <!-- Chart Custom JavaScript -->
+      <script src="../static/js/chart-custom.js"></script>
+      <!-- Custom JavaScript -->
+      <script src="../static/js/custom.js"></script>
+        <script src="../static/js/echarts.js"></script>
+        <script src="../static/js/china.js"></script>
+        <script>
+            $(window).load(function() {
+                $("#loading").fadeOut(500);
+            })
+    </script>
+        <script>
+            $(document).ready(function(){
+                var locchart1 = echarts.init(document.getElementById("loc-chart1"));
+                var locchart2 = echarts.init(document.getElementById("loc-chart2"));
+                var maploc = echarts.init(document.getElementById("maploc"));
+                var barchart=echarts.init(document.getElementById("barloc"));
+                //加载动画效果
+                function showLoad(){
+                      $('#loading').show();
+                  }
+                  //隐藏动画效果
+                function hiddenLoad(){
+                      $('#loading').hide();
+                  }
+                $.ajax({
+                    async:true,
+                    type:"GET",
+                    url:"/locwordfun",
+                    contentType: "application/json;charset=utf-8",
+                    beforeSend: function (){
+                      //ajax刷新前加载load动画
+                      showLoad();
+                  },
+                    success:function(data){
+                        alert("成功")
+                        var loctang=new Array();
+                        for (var i=0;i<data['tangloc'].length;i++)
+                        {
+                            loctang[i]=data['tangloc'][i].name;
+                        }
+                        var locsong=new Array();
+                        for (var j=0;j<data['songloc'].length;j++)
+                        {
+                            locsong[j]=data['songloc'][j].name;
+                        }
+                        var option = {
+                          tooltip: {
+                            trigger: 'item',
+                            //formatter: '{a} <br/>{b} : {c}%'
+                          },
+                          legend: {
+                            data: loctang
+                          },
+                            color:[
+
+                                          '#f1939c','#BDE5CE','#F2D58F','#3A727F',
+                                            '#962832','#db5858','#ad6598','#74759b',
+                                            '#93b5cf','#f8df72','#6e8b74','#ebb10d','#f9d27d',
+                                            '#648e93','#bf3553'
+
+                                        ],
+                          series: [
+                            {
+                              name: '唐',
+                              type: 'funnel',
+                              left: '0%',
+                              top: 50,
+                              bottom: 0,
+                              width: '100%',
+                              min: 0,
+                              max: data.tangmax,
+                              minSize: '0%',
+                              maxSize: '100%',
+                              sort: 'descending',
+                              gap: 2,
+                                color:this.color,
+                              label: {
+                                show: true,
+                                position: 'inside'
+                              },
+                              labelLine: {
+                                length: 10,
+                                lineStyle: {
+                                  width: 1,
+                                  type: 'solid'
+                                }
+                              },
+                              itemStyle: {
+                                borderColor: '#fff',
+                                borderWidth: 1
+                              },
+                              emphasis: {
+                                label: {
+                                  fontSize: 20
+                                }
+                              },
+                              data: data.tangloc
+                            }
+                          ]
+                        };
+                        locchart1.setOption(option);
+                        var option1 = {
+                          tooltip: {
+                            trigger: 'item',
+                            //formatter: '{a} <br/>{b} : {c}%'
+                          },
+                          legend: {
+                            data: locsong
+                          },
+                            color:[
+
+                                          '#f1939c','#BDE5CE','#F2D58F','#3A727F',
+                                            '#962832','#db5858','#ad6598','#74759b',
+                                            '#93b5cf','#f8df72','#6e8b74','#ebb10d','#f9d27d',
+                                            '#648e93','#bf3553'
+
+                                        ],
+                          series: [
+                            {
+                              name: '宋',
+                              type: 'funnel',
+                              left: '0%',
+                              top: 50,
+                              bottom: 0,
+                              width: '100%',
+                              min: 0,
+                              max: data.songmax,
+                              minSize: '0%',
+                              maxSize: '100%',
+                              sort: 'ascending',
+                              gap: 2,
+                                color:this.color,
+                              label: {
+                                show: true,
+                                position: 'inside'
+                              },
+                              labelLine: {
+                                length: 10,
+                                lineStyle: {
+                                  width: 1,
+                                  type: 'solid'
+                                }
+                              },
+                              itemStyle: {
+                                borderColor: '#fff',
+                                borderWidth: 1
+                              },
+                              emphasis: {
+                                label: {
+                                  fontSize: 20
+                                }
+                              },
+                              data: data.songloc
+                            }
+                          ]
+                        };
+                        locchart2.setOption(option1);
+
+                        var option3 = {
+                              title: {
+                                text: '宋词词牌名'
+                              },
+                              tooltip: {
+                                trigger: 'axis',
+                                axisPointer: {
+                                  type: 'shadow'
+                                }
+                              },
+                              legend: {},
+                              grid: {
+                                left: '3%',
+                                right: '4%',
+                                bottom: '3%',
+                                containLabel: true
+                              },
+                              xAxis: {
+                                type: 'value',
+                                boundaryGap: [0, 0.01]
+                              },
+                              yAxis: {
+                                type: 'category',
+                                data: data.titlename
+                              },
+                            color:'#3e8b9b',
+                              series: [
+                                {
+                                  name: '宋词词牌名排名',
+                                  type: 'bar',
+                                  data: data.titlenum
+                                }
+                              ]
+                            };
+                        barchart.setOption(option3);
+
+                        const schema = [
+                          { name: 'longitude', index: 0, text: '经度' },
+                          { name: 'latitude', index: 1, text: '纬度' },
+                          { name: 'value', index: 2, text: '出现次数' },
+                          { name: 'other', index: 3, text: '备注' },
+                        ];
+                        const itemStyle = {
+                          opacity: 0.8,
+                          shadowBlur: 10,
+                          shadowOffsetX: 0,
+                          shadowOffsetY: 0,
+                          shadowColor: 'rgba(0,0,0,0.3)'
+                        };
+                        var option2 = {
+                          color: ['#bf3553', '#f8df72', '#80F1BE'],
+                          legend: {
+                            top: 10,
+                            data: ['唐', '宋'],
+                            textStyle: {
+                              fontSize: 16
+                            }
+                          },
+                          grid: {
+                            left: '10%',
+                            right: 150,
+                            top: '18%',
+                            bottom: '10%'
+                          },
+                          tooltip: {
+                              backgroundColor: 'rgba(255,255,255,0.7)',
+                              formatter: function (param) {
+                              var value = param.value;
+                              // prettier-ignore
+                              return '<div style="border-bottom: 1px solid rgba(255,255,255,.3); font-size: 18px;padding-bottom: 7px;margin-bottom: 7px">'
+                                        + param.seriesName + ' ' + value[3]
+                                        + '</div>'
+                                        + schema[0].text + '：' + value[0] + '<br>'
+                                        + schema[1].text + '：' + value[1] + '<br>'
+                                        + schema[2].text + '：' + value[2] + '<br>'
+                                        + schema[3].text + '：' + value[4] + '<br>'
+                                        +"<img style='width:250px;height:150px;' src='"+value[5]+"'/>"+"<br>"
+                            }
+                          },
+                          xAxis: {
+                              type: 'value',
+                              name: '经度',
+                              nameGap: 16,
+                              nameTextStyle: {
+                                  fontSize: 16
+                                },
+                              max: data.longmax+2,
+                              min:data.longmin-2,
+                              splitLine: {
+                                  show: false
+                                }
+                          },
+                          yAxis: {
+                              type: 'value',
+                              name: '纬度',
+                              nameLocation: 'end',
+                              nameGap: 20,
+                              max:data.almax+2,
+                              min:data.almin-2,
+                              nameTextStyle: {
+                                  fontSize: 16
+                              },
+                              splitLine: {
+                                  show: false
+                              }
+                          },
+                          visualMap: [
+                            {
+                                right: 0,
+                                align:'left',
+                                top: '10%',
+                                dimension: 2,
+                                min: 30,
+                                max: 600,
+                                itemWidth: 30,
+                                itemHeight: 120,
+                                calculable: true,
+                                precision: 0.1,
+                                text: ['圆形大小：出现次数'],
+                                textGap: 30,
+                                inRange: {
+                                symbolSize: [10, 80]
+                              },
+                              outOfRange: {
+                                symbolSize: [10, 80],
+                                color: ['rgba(255,255,255,0.4)']
+                              },
+                              controller: {
+                                inRange: {
+                                  color: ['#bf3553']
+                                },
+                                outOfRange: {
+                                  color: ['#999']
+                                }
+                              }
+                            }
+                          ],
+                          series: [
+                            {
+                                name: '唐',
+                                type: 'scatter',
+                                itemStyle: itemStyle,
+                                data: data.sitetang,
+                                emphasis: {
+                                    focus: 'self'
+                                },
+                                labelLayout: function () {
+                                    return {
+                                      x: maploc.getWidth() - 100,
+                                      moveOverlap: 'shiftY'
+                                    };
+                                  },
+                                labelLine: {
+                                    show: true,
+                                    length2: 5,
+                                    lineStyle: {
+                                      color: '#bbb'
+                                    }
+                                  },
+                                label: {
+                                    show: true,
+                                    formatter: function (param) {
+                                      return param.data[3];
+                                    },
+                                    position: 'right',
+                                    minMargin: 2
+                                }
+                            },
+                            {
+                                name: '宋',
+                                type: 'scatter',
+                                itemStyle: itemStyle,
+                                data: data.sitesong,
+                                emphasis: {
+                                    focus: 'self'
+                                },
+                                labelLayout: function () {
+                                    return {
+                                      x: maploc.getWidth() - 100,
+                                      moveOverlap: 'shiftY'
+                                    };
+                                  },
+                                labelLine: {
+                                    show: true,
+                                    length2: 5,
+                                    lineStyle: {
+                                      color: '#bbb'
+                                    }
+                                  },
+                                label: {
+                                    show: true,
+                                    formatter: function (param) {
+                                      return param.data[3];
+                                    },
+                                    position: 'right',
+                                    minMargin: 2
+                                }
+                            }
+                          ]
+                        };
+                        maploc.setOption(option2);
+                    },
+                    error:function(){
+                        console.log();
+                        hiddenLoad();
+                        alert("出现错误");
+                    },
+                    complete:function () {
+                        //完成以后隐藏load动画
+                        hiddenLoad();
+                    }
+                })
+
+            })
+        </script>
+    <style>
+        @font-face{
+
+            font-family:'yanye';
+
+            src:url("../static/fonts/yanye.ttf");
+
+        }
+        body{background-color:#F9ECD1;
+            background-image:url('../static/img/locword/locbg4.png'),url('../static/img/locword/locbg2.png'),url('../static/img/locword/locbg6.png');
+            background-repeat:no-repeat,no-repeat,no-repeat;
+            background-position:left bottom,right top,left top;
+            background-size: 100% 100%,170px 300px,170px 300px;
+        }
+        .card-title{
+            font-family:'yanye';
+            color:#274B58;
+            font-weight:100;
+            margin-left:220px;
+        }
+        #loccard{
+            margin-left:290px
+        }
+        #titlecard{
+            margin:20px
+        }
+        .iq-card{
+            background-color: rgba(249, 236, 209, 0);
+        }
+    </style>
+</head>
+<body>
+    <div id="loading" style="background: #fff url(../static/img/loaderbut.gif) no-repeat scroll center center; height: 100%; width: 100%; background-size: 10%; position: fixed; margin-top: 0px; top: 0px; left: 0px; bottom: 0px; overflow: hidden !important; right: 0px; z-index: 999999;">
+         <!--<div id="loading-center">
+         </div>-->
+      </div>
+
+      <!-- loader END -->
+      <!-- Wrapper Start -->
+    <div class="wrapper">
+        <div class="container-fluid  p-5">
+            <div class="row">
+                <div class="col-sm-12 col-lg-4 p-2 justify-content-between">
+                    <div class="iq-card">
+                            <div class="iq-card-header d-flex justify-content-between">
+                               <div class="iq-header-title">
+                                  <h4 class="card-title" id="loccard">唐宋场景词</h4>
+                               </div>
+                            </div>
+                            <div class="iq-card-body">
+                               <div id="loc-chart1" style="width:100%; height:220px;"></div>
+                            </div>
+                            <div class="iq-card-body">
+                               <div id="loc-chart2" style="width:100%; height:220px;"></div>
+                            </div>
+                    </div>
+                </div>
+                <div class="col-sm-12 col-lg-5 p-2">
+                        <div class="iq-card">
+                            <div class="iq-card-header d-flex justify-content-between">
+                                <div class="iq-header-title">
+                              <h4 class="card-title">地点名词</h4>
+                           </div>
+                            </div>
+                                <div class="iq-card-body">
+                                    <div id="maploc" style="width:100%; height:480px"></div>
+                                </div>
+
+                        </div>
+                </div>
+                <div class="col-sm-12 col-lg-3 p-2">
+                        <div class="iq-card">
+                            <div class="iq-card-header d-flex justify-content-between">
+                                <div class="iq-header-title">
+                              <h4 class="card-title" id="titlecard">词牌名排名</h4>
+                           </div>
+                            </div>
+                                <div class="iq-card-body">
+                                    <div id="barloc" style="width:100%; height:480px"></div>
+                                </div>
+                        </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+      <!-- Wrapper END -->
+    <svg width="0" height="0">
+        <defs>
+            <filter id="goo">
+                <feGaussianBlur in="SourceGraphic" stdDeviation="10" result="blur"></feGaussianBlur>
+                <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 19 -9" result="goo"></feColorMatrix>
+                <feComposite in="SourceGraphic" in2="goo" operator="atop"></feComposite>
+            </filter>
+        </defs>
+    </svg>
+    <div class="aside-nav bounceInUp animated" id="aside-nav">
+        <label for="" class="aside-menu" title="按住拖动">菜单</label>
+
+        <a href="/" title="返回首页" class="menu-item menu-first">首页</a>
+        <a href="/charplant" title="上一页" class="menu-item menu-second">上一页</a>
+        <a href="/wordsimilar" title="下一页" class="menu-item menu-third">下一页</a>
+        <!--<a href="javascript:void(0)" title="词分析" class="menu-item menu-line menu-fourth">词分析</a> -->
+    </div>
+    <script src="../static/js/asidenav.js"></script>
+</body>
+</html>

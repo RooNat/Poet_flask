@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>唐诗宋词可视化</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        * { margin:0; padding:0; }
+        @font-face{
+
+            font-family:'yanye';
+
+            src:url("../static/fonts/yanye.ttf");
+
+        }
+        body { background:#F9ECD1 url(../static/img/index/bg1.png) no-repeat center center fixed;
+          -webkit-background-size: cover;
+          -moz-background-size: cover;
+          -o-background-size: cover;
+          background-size: cover;
+
+        }
+        h2,li{font-family:'yanye'}
+        h2{font-size:50px;}
+        .title { width:780px; height:300px; position:absolute; top:300px; left:150px; background:transparent url(../static/img/index/title1.png) no-repeat top left; }
+        a.back { background:transparent url(../static/img/index/title1.png) no-repeat top left; position:fixed; width:150px; height:27px; outline:none; bottom:0px; left:0px; }
+        #content { margin:0 auto; }
+    </style>
+    <link rel="stylesheet" href="{{ url_for('static',filename='css/style_index.css') }}" type="text/css" media="screen"/>
+    <script src="http://www.jq22.com/jquery/jquery-1.10.2.js"></script>
+
+</head>
+<body>
+    <div id="content">
+      <div class="title"></div>
+      <div class="navigation" id="nav">
+        <div class="item user"> <img src="{{ url_for('static',filename='img/index/bg_fav1.png') }}" alt="" width="210" height="210" class="circle"/> <a href="#" class="icon"></a>
+          <h2>诗人</h2>
+          <ul>
+            <li><a href="/searchpoet">搜索</a></li>
+            <li><a href="/poetcounts">可视化统计</a></li>
+          </ul>
+        </div>
+        <div class="item home"> <img src="{{ url_for('static',filename='img/index/bg_fav1.png') }}" alt="" width="210" height="210" class="circle"/> <a href="#" class="icon"></a>
+          <h2>字分析</h2>
+          <ul>
+            <li><a href="/charanimal">字分析一</a></li>
+            <li><a href="/charplant">字分析二</a></li>
+          </ul>
+        </div>
+        <div class="item shop"> <img src="{{ url_for('static',filename='img/index/bg_fav1.png') }}" alt="" width="210" height="210" class="circle"/> <a href="#" class="icon"></a>
+          <h2>词分析</h2>
+          <ul>
+            <li><a href="/locword">地点和场景</a></li>
+            <li><a href="/wordsimilar">时间和相似度</a></li>
+          </ul>
+        </div>
+        <div class="item camera"> <img src="{{ url_for('static',filename='img/index/bg_fav1.png') }}" alt="" width="210" height="210" class="circle"/> <a href="#" class="icon"></a>
+          <h2>句分析</h2>
+          <ul>
+            <li><a href="/wordssentiment">情感分析</a></li>
+          </ul>
+        </div>
+        <div class="item fav"> <img src="{{ url_for('static',filename='img/index/bg_fav1.png') }}" alt="" width="210" height="210" class="circle"/> <a href="#" class="icon"></a>
+          <h2>唐人物关系网络</h2>
+          <ul>
+            <li><a href="/Tangnet">全唐关系网络</a></li>
+          </ul>
+        </div>
+      </div>
+</div>
+<script type="text/javascript" src="../static/js/jquery.easing.1.3.js"></script>
+    <script type="text/javascript">
+            $(function() {
+                $('#nav > div').hover(
+                function () {
+                    var $this = $(this);
+                    $this.find('img').stop().animate({
+                        'width'     :'199px',
+                        'height'    :'199px',
+                        'top'       :'-25px',
+                        'left'      :'-25px',
+                        'opacity'   :'1.0'
+                    },500,'easeOutBack',function(){
+                        $(this).parent().find('ul').fadeIn(700);
+                    });
+
+                    $this.find('a:first,h2').addClass('active');
+                },
+                function () {
+                    var $this = $(this);
+                    $this.find('ul').fadeOut(500);
+                    $this.find('img').stop().animate({
+                        'width'     :'52px',
+                        'height'    :'52px',
+                        'top'       :'0px',
+                        'left'      :'0px',
+                        'opacity'   :'0.1'
+                    },5000,'easeOutBack');
+
+                    $this.find('a:first,h2').removeClass('active');
+                }
+            );
+            });
+        </script>
+</body>
+</html>
